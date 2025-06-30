@@ -39,7 +39,7 @@ fun BookDetailsScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 AsyncImage(
-                    model = book!!.coverUrl,
+                    model = book!!.coverImageUrl,
                     contentDescription = "Capa do livro ${book!!.title}",
                     modifier = Modifier
                         .height(300.dp)

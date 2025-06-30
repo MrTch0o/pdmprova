@@ -1,3 +1,4 @@
+// file: data/ApiService.kt
 package br.com.newlibrarybookstore.data
 
 import retrofit2.Retrofit
@@ -5,19 +6,20 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
 
-// Interface que define os endpoints da API
 interface ApiService {
+    // Aponta para o endpoint correto que você descobriu
     @GET("book/ls")
     suspend fun getBooks(): List<Book>
 
-    @GET("books/{id}")
-    suspend fun getBookById(@Path("id") bookId: String): Book
-
+    // Vamos comentar a busca por ID por enquanto, pois não sabemos
+    // como ela funciona nesta nova API. Isso evita erros de compilação.
+     @GET("books/{id}")
+     suspend fun getBookById(@Path("id") bookId: String): Book
 }
 
-// Objeto para criar uma instância única (singleton) do Retrofit
 object RetrofitInstance {
-    private const val BASE_URL = "https://minibookapi.viniciusfm.pro.br/"
+    // A URL base da nova API
+    const val BASE_URL = "https://minibookapi.viniciusfm.pro.br/"
 
     val api: ApiService by lazy {
         Retrofit.Builder()

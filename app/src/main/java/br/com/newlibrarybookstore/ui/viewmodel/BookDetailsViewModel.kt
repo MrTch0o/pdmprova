@@ -17,6 +17,7 @@ class BookDetailsViewModel : ViewModel() {
     val isLoading: StateFlow<Boolean> = _isLoading
 
     fun fetchBookById(bookId: String) {
+        //val idAsInt = bookId.toIntOrNull() ?: return
         viewModelScope.launch {
             _isLoading.value = true
             try {

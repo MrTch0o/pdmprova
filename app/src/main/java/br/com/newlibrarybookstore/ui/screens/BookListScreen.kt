@@ -42,7 +42,7 @@ fun BookItem(book: Book, modifier: Modifier = Modifier) {
             modifier = Modifier.padding(8.dp)
         ) {
             AsyncImage(
-                model = book.coverUrl,
+                model = book.coverImageUrl,
                 contentDescription = "Capa do livro ${book.title}",
                 modifier = Modifier
                     .size(80.dp)
