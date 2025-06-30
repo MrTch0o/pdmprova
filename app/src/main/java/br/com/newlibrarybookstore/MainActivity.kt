@@ -27,10 +27,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import br.com.newlibrarybookstore.ui.screens.BookDetailsScreen
 import br.com.newlibrarybookstore.ui.screens.BookStoreScreen
 import br.com.newlibrarybookstore.ui.screens.CartScreen
 import br.com.newlibrarybookstore.ui.screens.PurchasesScreen
@@ -110,7 +113,19 @@ fun BookApp(bookListViewModel: BookListViewModel, cartViewModel: CartViewModel) 
             startDestination = "store",
             Modifier.padding(innerPadding)
         ) {
-            composable("store") { BookStoreScreen(bookListViewModel, cartViewModel) }
+            composable("store") { BookStoreScreen(bookListViewModel, cartViewModel = cartViewModel, onBookClick = { bookId -> navController.navigate("book_details/$bookId") }) }
+            composable(
+                route = "book_details/{bookId}",
+                arguments = listOf(navArgument("bookId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val bookId = backStackEntry.arguments?.getString("bookId")
+                if (bookId != null) {
+                    BookDetailsScreen(bookId = bookId, cartViewModel = cartViewModel)
+                } else {
+                    // Lida com o caso de ID nulo, talvez voltando
+                    navController.popBackStack()
+                }
+            }
             composable("purchases") { PurchasesScreen(cartViewModel) }
             composable("cart") {
                 CartScreen(cartViewModel) {

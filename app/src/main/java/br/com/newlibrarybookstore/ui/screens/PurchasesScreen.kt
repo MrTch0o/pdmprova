@@ -1,5 +1,6 @@
 package br.com.newlibrarybookstore.ui.screens
 
+import android.R.attr.onClick
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -32,7 +33,7 @@ fun PurchasesScreen(cartViewModel: CartViewModel = viewModel()) {
         ) {
             items(purchasedItems) { book ->
                 // Apenas exibimos o item, sem botões de ação
-                BookStoreItem(book = book, onAddToCart = {})
+                BookStoreItem(book = book, onAddToCart = {}, onClick = {})
                 Spacer(modifier = Modifier.height(8.dp))
             }
         }

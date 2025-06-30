@@ -1,5 +1,6 @@
 package br.com.newlibrarybookstore.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -34,7 +35,8 @@ import coil.compose.AsyncImage
 @Composable
 fun BookStoreScreen(
     bookListViewModel: BookListViewModel = viewModel(),
-    cartViewModel: CartViewModel = viewModel()
+    cartViewModel: CartViewModel = viewModel(),
+    onBookClick: (String) -> Unit
 ) {
     val books by bookListViewModel.books.collectAsState()
     if (books.isEmpty()) {
@@ -49,7 +51,8 @@ fun BookStoreScreen(
             items(books) { book ->
                 BookStoreItem(
                     book = book,
-                    onAddToCart = { cartViewModel.addToCart(book) }
+                    onAddToCart = { cartViewModel.addToCart(book) },
+                    onClick = { onBookClick(book.id) }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -58,8 +61,10 @@ fun BookStoreScreen(
 }
 
 @Composable
-fun BookStoreItem(book: Book, onAddToCart: (Book) -> Unit) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+fun BookStoreItem(book: Book, onAddToCart: (Book) -> Unit, onClick: () -> Unit) {
+    Card(modifier = Modifier
+        .fillMaxWidth()
+        .clickable ( onClick = onClick)) {
         Row(modifier = Modifier.padding(8.dp)) {
             AsyncImage(
                 model = book.coverUrl,

@@ -38,7 +38,8 @@ fun CartScreen(
                     // Reutilizamos o BookStoreItem, mas com um botão de remover
                     BookStoreItem(
                         book = book,
-                        onAddToCart = { cartViewModel.removeFromCart(book) }
+                        onAddToCart = { cartViewModel.removeFromCart(book) },
+                        onClick = {}
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                 }
