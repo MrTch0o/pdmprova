@@ -64,6 +64,7 @@ fun BookApp(bookListViewModel: BookListViewModel, cartViewModel: CartViewModel) 
     val navController = rememberNavController()
     val cartItems by cartViewModel.cartItems.collectAsState()
     val context = LocalContext.current
+    val totalQuantity by cartViewModel.totalQuantity.collectAsState()
 
     Scaffold(
         topBar = {
@@ -73,7 +74,7 @@ fun BookApp(bookListViewModel: BookListViewModel, cartViewModel: CartViewModel) 
                     IconButton(onClick = { navController.navigate("cart") }) {
                         BadgedBox(
                             badge = {
-                                if (cartItems.isNotEmpty()) {
+                                if (totalQuantity > 0) {
                                     Badge { Text(cartItems.size.toString()) }
                                 }
                             }
@@ -161,13 +162,17 @@ fun BookApp(bookListViewModel: BookListViewModel, cartViewModel: CartViewModel) 
             }
             composable("purchases") { PurchasesScreen(cartViewModel) }
             composable("cart") {
-                CartScreen(cartViewModel) {
+                CartScreen(cartViewModel,
+                    onCheckout = {
+                        cartViewModel.checkout()
+
                     // Ação pós-checkout
                     Toast.makeText(context, "Compra finalizada com sucesso!", Toast.LENGTH_SHORT).show()
                     navController.navigate("purchases") {
                         popUpTo("store") // Limpa a pilha de navegação até a loja
                     }
                 }
+                )
             }
         }
     }
