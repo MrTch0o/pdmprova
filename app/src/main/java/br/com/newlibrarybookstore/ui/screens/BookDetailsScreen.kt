@@ -60,7 +60,7 @@ fun BookDetailsScreen(
                             modifier = Modifier.size(ButtonDefaults.IconSize)
                         )
                         Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-                        Text("Adicionar ao carrinho")
+                        Text("Buy")
                     }
                 }
             }

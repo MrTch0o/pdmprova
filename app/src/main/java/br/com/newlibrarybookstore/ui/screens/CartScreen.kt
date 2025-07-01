@@ -103,14 +103,14 @@ fun CartScreen(
                         onClick = onCheckout,
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("Finalizar compra")
+                        Text("Checkout")
                     }
                     // BOTÃO DE ESVAZIAR O CARRINHO
                     OutlinedButton(
                         onClick = { cartViewModel.clearCart() },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("Esvaziar o carrinho")
+                        Text("Discard")
                     }
                 }
             }

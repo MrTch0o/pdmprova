@@ -15,10 +15,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -57,7 +61,7 @@ fun BookStoreScreen(
                     book = book,
                     onAddToCart = { cartViewModel.addToCart(book) },
                     onClick = { onBookClick(book) },
-                    buttonText = "Comprar"
+                    buttonText = "Buy"
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -133,6 +137,12 @@ fun BookStoreItem(book: Book, onAddToCart: ((Book) -> Unit)? = null, onClick: ()
                     )
                     if (buttonText != null && onAddToCart != null) {
                         Button(onClick = { onAddToCart(book) }) {
+                            Icon(
+                                Icons.Default.ShoppingCart,
+                                contentDescription = null,
+                                modifier = Modifier.size(ButtonDefaults.IconSize)
+                            )
+                            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                             Text(buttonText)
                         }
                     }
