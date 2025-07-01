@@ -1,6 +1,7 @@
 package br.com.newlibrarybookstore.ui.screens
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -55,7 +56,8 @@ fun BookStoreScreen(
                 BookStoreItem(
                     book = book,
                     onAddToCart = { cartViewModel.addToCart(book) },
-                    onClick = { onBookClick(book) }
+                    onClick = { onBookClick(book) },
+                    buttonText = "Comprar"
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -63,21 +65,21 @@ fun BookStoreScreen(
     }
 }
 
+// Dentro de BookStoreScreen.kt
+
 @Composable
-fun BookStoreItem(book: Book, onAddToCart: (Book) -> Unit, onClick: () -> Unit) {
+fun BookStoreItem(book: Book, onAddToCart: ((Book) -> Unit)? = null, onClick: () -> Unit, buttonText: String? = null) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
     ) {
-        Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            // Usamos a nova propriedade 'coverImageUrl'
+        Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.Top) {
             AsyncImage(
                 model = book.coverImageUrl,
                 contentDescription = "Capa do livro ${book.title}",
-                // Adicionamos um placeholder para o caso da imagem não carregar ou ser nula
-                placeholder = painterResource(id = R.drawable.ic_launcher_background), // Use um drawable seu
-                error = painterResource(id = R.drawable.ic_launcher_background), // Use um drawable seu
+                placeholder = painterResource(id = R.drawable.ic_launcher_background),
+                error = painterResource(id = R.drawable.ic_launcher_background),
                 modifier = Modifier.size(100.dp, 150.dp),
                 contentScale = ContentScale.Crop
             )
@@ -89,29 +91,51 @@ fun BookStoreItem(book: Book, onAddToCart: (Book) -> Unit, onClick: () -> Unit) 
                     text = book.title,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    maxLines = 3 // Evita que títulos muito longos quebrem o layout
+                    maxLines = 3
                 )
                 Text(
                     text = book.author,
                     style = MaterialTheme.typography.bodyMedium,
                     maxLines = 2
                 )
+                // ADICIONADO: Editora
+                Text(
+                    text = "Editora: ${book.publisher}",
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+                // ADICIONADO: Ano e Unidades
+                Row(modifier = Modifier.padding(top = 4.dp)) {
+                    Text(
+                        text = "Ano: ${book.year}",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(end = 8.dp)
+                    )
+                    Text(
+                        text = "Unidades: ${book.unities}",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Exibimos o preço formatado que criamos no modelo
-                Text(
-                    text = book.formattedPrice,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary
-                )
-
-                Spacer(modifier = Modifier.weight(1f)) // Empurra o botão para baixo
-
-                Button(
-                    onClick = { onAddToCart(book) },
-                    modifier = Modifier.align(Alignment.End) // Alinha o botão à direita
+                // Alinhamos o preço e o botão na parte de baixo
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Comprar")
+                    Text(
+                        text = book.formattedPrice,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )
+                    if (buttonText != null && onAddToCart != null) {
+                        Button(onClick = { onAddToCart(book) }) {
+                            Text(buttonText)
+                        }
+                    }
                 }
             }
         }

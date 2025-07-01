@@ -91,17 +91,31 @@ fun BookApp(bookListViewModel: BookListViewModel, cartViewModel: CartViewModel) 
             NavigationBar {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
-                val items = listOf("store" to Icons.Default.Storefront, "purchases" to Icons.Default.History)
 
-                items.forEach { (screen, icon) ->
+                // Defina os itens da sua barra de navegação
+                val bottomNavItems = listOf(
+                    "store" to Icons.Default.Storefront,
+                    "purchases" to Icons.Default.History
+                )
+
+                bottomNavItems.forEach { (screen, icon) ->
                     NavigationBarItem(
-                        icon = { Icon(icon, contentDescription = null) },
+                        icon = { Icon(icon, contentDescription = screen) },
                         label = { Text(screen.replaceFirstChar { it.uppercase() }) },
                         selected = currentDestination?.hierarchy?.any { it.route == screen } == true,
+                        // ESTA LÓGICA DE ONCLICK É A CHAVE
                         onClick = {
                             navController.navigate(screen) {
-                                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                // Pop up to the start destination of the graph to
+                                // avoid building up a large stack of destinations
+                                // on the back stack as users select items
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                // Evita múltiplas cópias do mesmo destino quando
+                                // você clica novamente no mesmo item
                                 launchSingleTop = true
+                                // Restaura o estado ao clicar novamente em um item já selecionado
                                 restoreState = true
                             }
                         }
