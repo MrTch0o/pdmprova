@@ -39,7 +39,7 @@ import coil.compose.AsyncImage
 fun BookStoreScreen(
     bookListViewModel: BookListViewModel = viewModel(),
     cartViewModel: CartViewModel = viewModel(),
-    onBookClick: (String) -> Unit
+    onBookClick: (Book) -> Unit
 ) {
     val books by bookListViewModel.books.collectAsState()
     if (books.isEmpty()) {
@@ -55,7 +55,7 @@ fun BookStoreScreen(
                 BookStoreItem(
                     book = book,
                     onAddToCart = { cartViewModel.addToCart(book) },
-                    onClick = {  }
+                    onClick = { onBookClick(book) }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }

@@ -33,6 +33,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import br.com.newlibrarybookstore.data.Book
 import br.com.newlibrarybookstore.ui.screens.BookDetailsScreen
 import br.com.newlibrarybookstore.ui.screens.BookStoreScreen
 import br.com.newlibrarybookstore.ui.screens.CartScreen
@@ -40,6 +41,7 @@ import br.com.newlibrarybookstore.ui.screens.PurchasesScreen
 import br.com.newlibrarybookstore.ui.theme.NewLibraryBookStoreTheme
 import br.com.newlibrarybookstore.ui.viewmodel.BookListViewModel
 import br.com.newlibrarybookstore.ui.viewmodel.CartViewModel
+import com.google.gson.Gson
 
 class MainActivity : ComponentActivity() {
     // Instancia os ViewModels no nível da Activity para que sejam compartilhados
@@ -113,17 +115,39 @@ fun BookApp(bookListViewModel: BookListViewModel, cartViewModel: CartViewModel) 
             startDestination = "store",
             Modifier.padding(innerPadding)
         ) {
-            composable("store") { BookStoreScreen(bookListViewModel, cartViewModel = cartViewModel, onBookClick = { bookId -> navController.navigate("book_details/$bookId") }) }
+            composable("store") {
+                BookStoreScreen(
+                    bookListViewModel = bookListViewModel,
+                    cartViewModel = cartViewModel,
+                    onBookClick = { book ->
+                        // 1. Converte o objeto Book para uma string JSON
+                        val bookJson = Gson().toJson(book)
+                        // 2. Navega para a rota de detalhes, passando o JSON como argumento.
+                        // O replace é uma segurança para evitar que caracteres como '/' quebrem a URL.
+                        navController.navigate("book_details/${bookJson.replace('/', '|')}")
+                    }
+                )
+            }
+
+            // ROTA DE DETALHES CORRIGIDA
             composable(
-                route = "book_details/{bookId}",
-                arguments = listOf(navArgument("bookId") { type = NavType.StringType })
+                route = "book_details/{bookJson}",
+                arguments = listOf(navArgument("bookJson") { type = NavType.StringType })
             ) { backStackEntry ->
-                val bookId = backStackEntry.arguments?.getString("bookId")
-                if (bookId != null) {
-                    BookDetailsScreen(bookId = bookId, cartViewModel = cartViewModel)
+                // 3. Pega a string JSON dos argumentos da rota e desfaz o replace.
+                val bookJson = backStackEntry.arguments?.getString("bookJson")?.replace('|', '/')
+                if (bookJson != null) {
+                    // 4. Converte a string JSON de volta para um objeto Book
+                    val book = Gson().fromJson(bookJson, Book::class.java)
+                    // 5. Passa o objeto Book e o NavController para a tela de detalhes
+                    BookDetailsScreen(
+                        navController = navController,
+                        book = book,
+                        cartViewModel = cartViewModel
+                    )
                 } else {
-                    // Lida com o caso de ID nulo, talvez voltando
-                    navController.popBackStack()
+                    // Tela de fallback caso algo dê muito errado
+                    Text("Erro ao carregar detalhes do livro.")
                 }
             }
             composable("purchases") { PurchasesScreen(cartViewModel) }
