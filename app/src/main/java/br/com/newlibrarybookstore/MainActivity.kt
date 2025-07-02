@@ -37,6 +37,7 @@ import br.com.newlibrarybookstore.data.Book
 import br.com.newlibrarybookstore.ui.screens.BookDetailsScreen
 import br.com.newlibrarybookstore.ui.screens.BookStoreScreen
 import br.com.newlibrarybookstore.ui.screens.CartScreen
+import br.com.newlibrarybookstore.ui.screens.CheckoutScreen
 import br.com.newlibrarybookstore.ui.screens.PurchasesScreen
 import br.com.newlibrarybookstore.ui.theme.NewLibraryBookStoreTheme
 import br.com.newlibrarybookstore.ui.viewmodel.BookListViewModel
@@ -161,18 +162,13 @@ fun BookApp(bookListViewModel: BookListViewModel, cartViewModel: CartViewModel) 
                 }
             }
             composable("purchases") { PurchasesScreen(cartViewModel) }
-            composable("cart") {
-                CartScreen(cartViewModel,
-                    onCheckout = {
-                        cartViewModel.checkout()
-
-                    // Ação pós-checkout
-                    Toast.makeText(context, "Compra finalizada com sucesso!", Toast.LENGTH_SHORT).show()
-                    navController.navigate("purchases") {
-                        popUpTo("store") // Limpa a pilha de navegação até a loja
-                    }
-                }
-                )
+            composable("cart") { CartScreen(navController, cartViewModel) }
+            composable(
+                "checkout/{saleJson}",
+                arguments = listOf(navArgument("saleJson") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val saleJson = backStackEntry.arguments?.getString("saleJson") ?: ""
+                CheckoutScreen(navController, saleJson)
             }
         }
     }

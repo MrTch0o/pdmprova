@@ -1,14 +1,20 @@
 // file: ui/viewmodel/CartViewModel.kt
 package br.com.newlibrarybookstore.ui.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.newlibrarybookstore.data.Book
+import br.com.newlibrarybookstore.data.BooksSaleRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import br.com.newlibrarybookstore.data.RetrofitInstance
+import br.com.newlibrarybookstore.data.Sale
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 data class CartItem(val book: Book, val quantity: Int)
 
@@ -75,5 +81,33 @@ class CartViewModel : ViewModel() {
         _purchasedItems.value = booksToPurchase + _purchasedItems.value
         // Limpa o carrinho após a compra
         clearCart()
+    }
+
+    suspend fun createSale(): Sale? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val booksSaleData = _cartItems.value
+                    .mapKeys { it.key.toString() }
+                    .mapValues { it.value.quantity }
+
+                val request = BooksSaleRequest(booksSaleData)
+
+
+                Log.d("CheckoutDebug", "Payload enviado: $request")
+
+                val response = RetrofitInstance.api.createSale(
+                    token = "Bearer 1d37663bd531a5dfa016f40ab3d5836b58ff310447526a04b27d83a437afa2e1",
+                    request = request
+                )
+
+                Log.d("CheckoutDebug", "Resposta recebida: $response")
+
+                response
+            } catch (e: Exception) {
+                e.printStackTrace()
+                //Log.e("CheckoutDebug", "Erro ao chamar createSale: ${e.message}", e)
+                null
+            }
+        }
     }
 }

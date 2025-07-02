@@ -1,6 +1,7 @@
 // file: ui/screens/CartScreen.kt
 package br.com.newlibrarybookstore.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,14 +32,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import br.com.newlibrarybookstore.data.Book
 import br.com.newlibrarybookstore.ui.viewmodel.CartItem
 import br.com.newlibrarybookstore.ui.viewmodel.CartViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun CartScreen(
-    cartViewModel: CartViewModel = viewModel(),
-    onCheckout: () -> Unit
+    navController: NavController,
+    cartViewModel: CartViewModel = viewModel()
 ) {
     val cartItemsMap by cartViewModel.cartItems.collectAsState()
     val totalPrice by cartViewModel.totalPrice.collectAsState()
@@ -100,7 +103,26 @@ fun CartScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Button(
-                        onClick = onCheckout,
+                        onClick = {
+                            // Chamada do checkout via coroutine
+                            // Usamos CoroutineScope para chamar a função suspensa no Compose
+                            // mantendo responsividade.
+                            kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main).launch {
+                                val sale = cartViewModel.createSale()
+                                if (sale != null) {
+                                    // Passa os dados como JSON via argumento de navegação
+                                    val json = java.net.URLEncoder.encode(com.google.gson.Gson().toJson(sale), "UTF-8")
+                                    navController.navigate("checkout/$json")
+                                } else {
+                                    // Tratar erro se necessário
+                                    Toast.makeText(
+                                        navController.context,
+                                        "Erro ao gerar checkout, tente novamente.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                        },
                         modifier = Modifier.weight(1f)
                     ) {
                         Text("Checkout")
