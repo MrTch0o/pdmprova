@@ -15,15 +15,20 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import br.com.newlibrarybookstore.data.Sale
+import br.com.newlibrarybookstore.ui.viewmodel.CartViewModel
+import br.com.newlibrarybookstore.ui.viewmodel.PurchasesViewModel
 import com.google.gson.Gson
+import kotlinx.coroutines.launch
 import java.net.URLDecoder
 
 // Função utilitária para converter Base64 em Bitmap
@@ -40,10 +45,11 @@ fun base64ToBitmap(base64String: String): Bitmap? {
 @Composable
 fun CheckoutScreen(
     navController: NavController,
-    saleJson: String
+    saleJson: String,
+    cartViewModel: CartViewModel = viewModel()
 ) {
     val context = LocalContext.current
-
+    val purchasesViewModel: PurchasesViewModel = viewModel()
     // Decodifica o JSON recebido
     val saleJsonDecoded = URLDecoder.decode(saleJson, "UTF-8")
     val sale = Gson().fromJson(saleJsonDecoded, Sale::class.java)
@@ -122,16 +128,41 @@ fun CheckoutScreen(
 
         Spacer(modifier = Modifier.height(16.dp)) // espaçamento reduzido abaixo do Total
 
+        val scope = rememberCoroutineScope()
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            Button(onClick = { /* Confirmar Pagamento */ }) {
-                Text("Confirmar Pagamento", fontSize = MaterialTheme.typography.bodyMedium.fontSize)
+            Button(onClick = {
+                scope.launch {
+                    val success = cartViewModel.confirmSale(sale.uuid)
+                    if (success) {
+                        purchasesViewModel.addPurchase(sale.booksSales)
+                        cartViewModel.clearCart() // limpa carrinho
+                        navController.navigate("purchases") {
+                            popUpTo("store")
+                        }
+                    } else {
+                        Toast.makeText(context, "Erro ao confirmar pagamento!", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }) {
+                Text("Confirmar Pagamento")
             }
-            OutlinedButton(onClick = { navController.popBackStack() }) {
-                Text("Cancelar", fontSize = MaterialTheme.typography.bodyMedium.fontSize)
+            OutlinedButton(onClick = {
+                scope.launch {
+                    val success = cartViewModel.cancelSale(sale.uuid)
+                    if (success) {
+                        navController.popBackStack() // volta ao carrinho
+                    } else {
+                        Toast.makeText(context, "Erro ao cancelar pagamento!", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }) {
+                Text("Cancelar")
             }
         }
+
     }
 }

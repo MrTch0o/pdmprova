@@ -1,4 +1,3 @@
-// file: ui/screens/PurchasesScreen.kt
 package br.com.newlibrarybookstore.ui.screens
 
 import androidx.compose.foundation.layout.*

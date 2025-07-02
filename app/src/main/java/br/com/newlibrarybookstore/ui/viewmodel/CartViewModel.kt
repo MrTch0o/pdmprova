@@ -110,4 +110,33 @@ class CartViewModel : ViewModel() {
             }
         }
     }
+    val TOKEN = "Bearer 1d37663bd531a5dfa016f40ab3d5836b58ff310447526a04b27d83a437afa2e1"
+
+    suspend fun confirmSale(uuid: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                val payload = mapOf("sale_uuid" to uuid)
+                val response = RetrofitInstance.api.confirmSale(TOKEN, payload)
+                Log.d("CheckoutDebug", "Confirmação response: ${response.code()}")
+                response.isSuccessful
+            } catch (e: Exception) {
+                Log.e("CheckoutDebug", "Erro ao confirmar venda: ${e.message}", e)
+                false
+            }
+        }
+    }
+
+    suspend fun cancelSale(uuid: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                val payload = mapOf("sale_uuid" to uuid)
+                val response = RetrofitInstance.api.cancelSale(TOKEN, payload)
+                Log.d("CheckoutDebug", "Cancelamento response: ${response.code()}")
+                response.isSuccessful
+            } catch (e: Exception) {
+                Log.e("CheckoutDebug", "Erro ao cancelar venda: ${e.message}", e)
+                false
+            }
+        }
+    }
 }
