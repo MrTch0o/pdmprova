@@ -1,28 +1,14 @@
-// file: ui/screens/CartScreen.kt
 package br.com.newlibrarybookstore.ui.screens
 
+import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.RemoveCircleOutline
-import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -34,8 +20,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import br.com.newlibrarybookstore.data.Book
+import br.com.newlibrarybookstore.data.Sale
 import br.com.newlibrarybookstore.ui.viewmodel.CartItem
 import br.com.newlibrarybookstore.ui.viewmodel.CartViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
@@ -49,7 +38,6 @@ fun CartScreen(
     val cartItemsList = cartItemsMap.values.toList().sortedBy { it.book.title }
 
     if (cartItemsList.isEmpty()) {
-        // TELA DE CARRINHO VAZIO
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -62,28 +50,21 @@ fun CartScreen(
             )
         }
     } else {
-        // TELA DE CARRINHO COM ITENS
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
+            modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
             Text("Itens do carrinho de compras:", style = MaterialTheme.typography.titleLarge)
             Spacer(modifier = Modifier.height(8.dp))
             LazyColumn(modifier = Modifier.weight(1f)) {
                 items(cartItemsList) { cartItem ->
-                    // ATUALIZE A CHAMADA PARA CartListItem AQUI:
                     CartListItem(
                         item = cartItem,
-                        // Passa a função do ViewModel para incrementar
-                        onIncrease = { book -> cartViewModel.addToCart(book) },
-                        // Passa a função do ViewModel para decrementar
-                        onDecrease = { book -> cartViewModel.removeFromCart(book) }
+                        onIncrease = { cartViewModel.addToCart(it) },
+                        onDecrease = { cartViewModel.removeFromCart(it) }
                     )
                     Divider()
                 }
             }
-            // RODAPÉ COM TOTAL E BOTÕES
             Column(modifier = Modifier.fillMaxWidth()) {
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
                 Row(
@@ -104,17 +85,13 @@ fun CartScreen(
                 ) {
                     Button(
                         onClick = {
-                            // Chamada do checkout via coroutine
-                            // Usamos CoroutineScope para chamar a função suspensa no Compose
-                            // mantendo responsividade.
-                            kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main).launch {
-                                val sale = cartViewModel.createSale()
+                            CoroutineScope(Dispatchers.Main).launch {
+                                val sale: Sale? = cartViewModel.createSale()
                                 if (sale != null) {
-                                    // Passa os dados como JSON via argumento de navegação
-                                    val json = java.net.URLEncoder.encode(com.google.gson.Gson().toJson(sale), "UTF-8")
-                                    navController.navigate("checkout/$json")
+                                    cartViewModel.setCurrentSale(sale)
+                                    Log.d("CheckoutDebug", "Checkout response sale checkout: $sale")
+                                    navController.navigate("checkout")
                                 } else {
-                                    // Tratar erro se necessário
                                     Toast.makeText(
                                         navController.context,
                                         "Erro ao gerar checkout, tente novamente.",
@@ -124,16 +101,12 @@ fun CartScreen(
                             }
                         },
                         modifier = Modifier.weight(1f)
-                    ) {
-                        Text("Checkout")
-                    }
-                    // BOTÃO DE ESVAZIAR O CARRINHO
+                    ) { Text("Checkout") }
+
                     OutlinedButton(
                         onClick = { cartViewModel.clearCart() },
                         modifier = Modifier.weight(1f)
-                    ) {
-                        Text("Discard")
-                    }
+                    ) { Text("Descartar") }
                 }
             }
         }
@@ -146,49 +119,25 @@ fun CartListItem(
     onIncrease: (Book) -> Unit,
     onDecrease: (Book) -> Unit
 ) {
-    // Calculamos o preço total para esta linha (ex: 2 x R$15,00 = R$30,00)
     val linePrice = (item.book.price * item.quantity) / 100.0
-
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 12.dp),
+        modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Coluna para o Título e Autor
         Column(modifier = Modifier.weight(1f)) {
             Text(item.book.title, fontWeight = FontWeight.Bold, maxLines = 2)
             Text(item.book.author, style = MaterialTheme.typography.bodySmall)
         }
-
-        // Coluna para os controles de quantidade e preço
-        Column(
-            horizontalAlignment = Alignment.End,
-            modifier = Modifier.padding(start = 8.dp)
-        ) {
+        Column(horizontalAlignment = Alignment.End, modifier = Modifier.padding(start = 8.dp)) {
             Text("R$ %.2f".format(linePrice), fontWeight = FontWeight.SemiBold)
             Spacer(modifier = Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                // Botão de DECREMENTAR (-)
-                IconButton(
-                    onClick = { onDecrease(item.book) },
-                    modifier = Modifier.size(28.dp)
-                ) {
-                    Icon(Icons.Default.RemoveCircleOutline, contentDescription = "Remover um")
+                IconButton(onClick = { onDecrease(item.book) }, modifier = Modifier.size(28.dp)) {
+                    Icon(Icons.Default.RemoveCircleOutline, contentDescription = "Remover")
                 }
-
-                Text(
-                    text = "${item.quantity}",
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
-
-                // Botão de INCREMENTAR (+)
-                IconButton(
-                    onClick = { onIncrease(item.book) },
-                    modifier = Modifier.size(28.dp)
-                ) {
-                    Icon(Icons.Default.AddCircleOutline, contentDescription = "Adicionar mais um")
+                Text("${item.quantity}", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(horizontal = 8.dp))
+                IconButton(onClick = { onIncrease(item.book) }, modifier = Modifier.size(28.dp)) {
+                    Icon(Icons.Default.AddCircleOutline, contentDescription = "Adicionar")
                 }
             }
         }

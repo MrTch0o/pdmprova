@@ -33,6 +33,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import br.com.newlibrarybookstore.data.Book
+import br.com.newlibrarybookstore.data.Sale
 import br.com.newlibrarybookstore.ui.screens.BookDetailsScreen
 import br.com.newlibrarybookstore.ui.screens.BookStoreScreen
 import br.com.newlibrarybookstore.ui.screens.CartScreen
@@ -162,13 +163,10 @@ fun BookApp(bookListViewModel: BookListViewModel, cartViewModel: CartViewModel) 
             }
             composable("purchases") { PurchasesScreen(cartViewModel) }
             composable("cart") { CartScreen(navController, cartViewModel) }
-            composable(
-                "checkout/{saleJson}",
-                arguments = listOf(navArgument("saleJson") { type = NavType.StringType })
-            ) { backStackEntry ->
-                val saleJson = backStackEntry.arguments?.getString("saleJson") ?: ""
-                CheckoutScreen(navController, saleJson)
+            composable("checkout") {
+                CheckoutScreen(navController, cartViewModel)
             }
+
         }
     }
 }
