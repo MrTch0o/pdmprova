@@ -1,5 +1,6 @@
 package br.com.newlibrarybookstore
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -33,7 +34,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import br.com.newlibrarybookstore.data.Book
-import br.com.newlibrarybookstore.data.Sale
 import br.com.newlibrarybookstore.ui.screens.BookDetailsScreen
 import br.com.newlibrarybookstore.ui.screens.BookStoreScreen
 import br.com.newlibrarybookstore.ui.screens.CartScreen
@@ -64,7 +64,7 @@ class MainActivity : ComponentActivity() {
 fun BookApp(bookListViewModel: BookListViewModel, cartViewModel: CartViewModel) {
     val navController = rememberNavController()
     val cartItems by cartViewModel.cartItems.collectAsState()
-    val context = LocalContext.current
+    //val context: Context = LocalContext.current
     val totalQuantity by cartViewModel.totalQuantity.collectAsState()
 
     Scaffold(

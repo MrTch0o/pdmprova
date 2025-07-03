@@ -62,11 +62,11 @@ fun CartScreen(
                         onIncrease = { cartViewModel.addToCart(it) },
                         onDecrease = { cartViewModel.removeFromCart(it) }
                     )
-                    Divider()
+                    HorizontalDivider()
                 }
             }
             Column(modifier = Modifier.fillMaxWidth()) {
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
