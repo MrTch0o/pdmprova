@@ -15,12 +15,9 @@ data class Book(
     val price: Int,
 
     @SerializedName("img_res")
-    val imageResourceId: String? // Também pode ser nulo
+    val imageResourceId: String?
 ) {
-    /**
-     * Propriedade calculada que monta a URL completa da imagem.
-     * Ela só retorna uma URL se 'imageResourceId' não for nulo.
-     */
+
     val coverImageUrl: String?
         get() = imageResourceId?.let { "${RetrofitInstance.BASE_URL}img/$it" }
 

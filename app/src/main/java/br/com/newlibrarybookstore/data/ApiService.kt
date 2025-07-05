@@ -1,4 +1,3 @@
-// file: data/ApiService.kt
 package br.com.newlibrarybookstore.data
 
 import retrofit2.Response
@@ -13,7 +12,6 @@ import retrofit2.http.PUT
 
 interface ApiService {
 
-    // já existente
     @GET("book/ls")
     suspend fun getBooks(): List<Book>
 

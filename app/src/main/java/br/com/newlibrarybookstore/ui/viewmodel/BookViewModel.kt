@@ -24,7 +24,6 @@ class BookViewModel : ViewModel() {
             try {
                 _books.value = repository.getBooks()
             } catch (e: Exception) {
-                // Tratar erro (ex: mostrar uma mensagem na UI)
                 println("Erro ao buscar livros: ${e.message}")
             }
         }
