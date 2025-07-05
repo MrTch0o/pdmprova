@@ -1,5 +1,6 @@
 package br.com.newlibrarybookstore.ui.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.newlibrarybookstore.data.Book
@@ -21,7 +22,7 @@ class BookListViewModel : ViewModel() {
             try {
                 _books.value = RetrofitInstance.api.getBooks()
             } catch (e: Exception) {
-                // Lidar com o erro
+                Log.d("fetchBooksDebug", "Erro ao buscar livros: ${e.message}", e)
             }
         }
     }
