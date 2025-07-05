@@ -75,7 +75,7 @@ fun PurchasedBookItem(bookSale: BookSale) {
                 )
             }
             Text(
-                text = "R$ %.2f".format(bookSale.bookPrice / 100.0),
+                text = "R$ %.2f".format(bookSale.bookPrice * bookSale.unities / 100.0),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
