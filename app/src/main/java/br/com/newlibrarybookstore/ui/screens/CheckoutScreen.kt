@@ -106,7 +106,7 @@ fun CheckoutScreen(
                         cartViewModel.clearCart()
                         navController.navigate("purchases") { popUpTo("store") }
                     } else {
-                        Toast.makeText(context, "Erro ao confirmar pagamento!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(navController.context, "Erro ao confirmar pagamento! $errorMessage ", Toast.LENGTH_SHORT).show()
                     }
                 }
             }) { Text("Confirmar Pagamento") }
@@ -116,7 +116,7 @@ fun CheckoutScreen(
                     if (cartViewModel.cancelSale(sale.uuid)) {
                         navController.popBackStack()
                     } else {
-                        Toast.makeText(context, "Erro ao cancelar pagamento!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(navController.context, "Erro ao cancelar pagamento! $errorMessage", Toast.LENGTH_SHORT).show()
                     }
                 }
             }) { Text("Cancelar") }

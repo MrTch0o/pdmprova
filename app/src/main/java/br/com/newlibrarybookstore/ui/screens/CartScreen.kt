@@ -100,7 +100,7 @@ fun CartScreen(
                                 } else {
                                     Toast.makeText(
                                         navController.context,
-                                        "Erro ao gerar checkout, tente novamente.$errorMessage",
+                                        "Erro ao gerar checkout, tente novamente. $errorMessage",
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }

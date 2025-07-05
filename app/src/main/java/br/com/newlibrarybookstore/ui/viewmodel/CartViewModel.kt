@@ -84,7 +84,7 @@ class CartViewModel : ViewModel() {
                 _cartItems.value.mapKeys { it.key.toString() }.mapValues { it.value.quantity }
             )
             Log.d("CheckoutDebug", "Payload enviado: $request")
-            val response = RetrofitInstance.api.createSale(token = "TOKEN", request = request)
+            val response = RetrofitInstance.api.createSale(token = TOKEN, request = request)
             Log.d("CheckoutDebug", "Resposta recebida: $response")
             response
         } catch (e: HttpException) {
@@ -110,18 +110,37 @@ class CartViewModel : ViewModel() {
             val response = RetrofitInstance.api.confirmSale(TOKEN, mapOf("sale_uuid" to uuid))
             Log.d("CheckoutDebug", "Confirmação response: ${response.code()}")
             response.isSuccessful
+        } catch (e: HttpException) {
+            val errorBody = e.response()?.errorBody()?.string()
+            errorBody?.let {
+                val apiError = Gson().fromJson(it, ApiError::class.java)
+                _apiErrorMessage.value = apiError.errmsg
+                Log.e("CheckoutDebug", "API Error: ${apiError.errmsg} (code: ${apiError.errcode})")
+            }
+            false
         } catch (e: Exception) {
+            _apiErrorMessage.value = "Erro de conexão ou inesperado: ${e.localizedMessage}"
             Log.e("CheckoutDebug", "Erro ao confirmar venda: ${e.message}", e)
             false
         }
     }
+
 
     suspend fun cancelSale(uuid: String): Boolean = withContext(Dispatchers.IO) {
         try {
             val response = RetrofitInstance.api.cancelSale(TOKEN, mapOf("sale_uuid" to uuid))
             Log.d("CheckoutDebug", "Cancelamento response: ${response.code()}")
             response.isSuccessful
+        } catch (e: HttpException) {
+            val errorBody = e.response()?.errorBody()?.string()
+            errorBody?.let {
+                val apiError = Gson().fromJson(it, ApiError::class.java)
+                _apiErrorMessage.value = apiError.errmsg
+                Log.e("CheckoutDebug", "API Error: ${apiError.errmsg} (code: ${apiError.errcode})")
+            }
+            false
         } catch (e: Exception) {
+            _apiErrorMessage.value = "Erro de conexão ou inesperado: ${e.localizedMessage}"
             Log.e("CheckoutDebug", "Erro ao cancelar venda: ${e.message}", e)
             false
         }
