@@ -2,6 +2,7 @@ package br.com.newlibrarybookstore
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -42,18 +43,22 @@ import br.com.newlibrarybookstore.ui.screens.PurchasesScreen
 import br.com.newlibrarybookstore.ui.theme.NewLibraryBookStoreTheme
 import br.com.newlibrarybookstore.ui.viewmodel.BookListViewModel
 import br.com.newlibrarybookstore.ui.viewmodel.CartViewModel
+import br.com.newlibrarybookstore.ui.viewmodel.PurchasesViewModel
 import com.google.gson.Gson
 
 class MainActivity : ComponentActivity() {
     // Instancia os ViewModels no nível da Activity para que sejam compartilhados
     private val bookListViewModel: BookListViewModel by viewModels()
     private val cartViewModel: CartViewModel by viewModels()
+    private val purchasesViewModel: PurchasesViewModel by viewModels()
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             NewLibraryBookStoreTheme {
-                BookApp(bookListViewModel, cartViewModel)
+                BookApp(bookListViewModel, cartViewModel, purchasesViewModel)
             }
         }
     }
@@ -61,7 +66,7 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BookApp(bookListViewModel: BookListViewModel, cartViewModel: CartViewModel) {
+fun BookApp(bookListViewModel: BookListViewModel, cartViewModel: CartViewModel, purchasesViewModel: PurchasesViewModel) {
     val navController = rememberNavController()
     val cartItems by cartViewModel.cartItems.collectAsState()
     //val context: Context = LocalContext.current
@@ -161,10 +166,12 @@ fun BookApp(bookListViewModel: BookListViewModel, cartViewModel: CartViewModel) 
                     Text("Erro ao carregar detalhes do livro.")
                 }
             }
-            composable("purchases") { PurchasesScreen(cartViewModel) }
+            composable("purchases") {
+                Log.d("onMainActivityCheckoutDebug", "PurchasesViewModel: $purchasesViewModel")
+                PurchasesScreen(purchasesViewModel) }
             composable("cart") { CartScreen(navController, cartViewModel) }
             composable("checkout") {
-                CheckoutScreen(navController, cartViewModel)
+                CheckoutScreen(navController, cartViewModel, purchasesViewModel)
             }
 
         }

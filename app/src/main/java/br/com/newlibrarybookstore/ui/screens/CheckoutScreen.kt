@@ -50,7 +50,8 @@ fun base64ToBitmap(base64String: String) = try {
 @Composable
 fun CheckoutScreen(
     navController: NavController,
-    cartViewModel: CartViewModel = viewModel()
+    cartViewModel: CartViewModel,
+    purchasesViewModel: PurchasesViewModel
 ) {
 
     val sale = cartViewModel.currentSale.collectAsState().value
@@ -60,7 +61,7 @@ fun CheckoutScreen(
     }
     Log.d("SaleDebug", "Checkout: $sale")
     val context = LocalContext.current
-    val purchasesViewModel: PurchasesViewModel = viewModel()
+    //val purchasesViewModel: PurchasesViewModel = viewModel()
     val bitmap = base64ToBitmap(sale.pixB64.substringAfter(','))
     val scope = rememberCoroutineScope()
 
