@@ -135,6 +135,7 @@ fun BookApp(bookListViewModel: BookListViewModel, cartViewModel: CartViewModel, 
                 BookStoreScreen(
                     bookListViewModel = bookListViewModel,
                     cartViewModel = cartViewModel,
+                    navController = navController,
                     onBookClick = { book ->
                         // 1. Converte o objeto Book para uma string JSON
                         val bookJson = Gson().toJson(book)

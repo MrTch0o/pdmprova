@@ -21,10 +21,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -33,7 +34,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import br.com.newlibrarybookstore.R
 import br.com.newlibrarybookstore.data.Book
 import br.com.newlibrarybookstore.ui.viewmodel.BookListViewModel
@@ -42,11 +44,18 @@ import coil.compose.AsyncImage
 
 @Composable
 fun BookStoreScreen(
-    bookListViewModel: BookListViewModel = viewModel(),
-    cartViewModel: CartViewModel = viewModel(),
+    bookListViewModel: BookListViewModel,
+    cartViewModel: CartViewModel,
+    navController: NavController,
     onBookClick: (Book) -> Unit
 ) {
     val books by bookListViewModel.books.collectAsState()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    LaunchedEffect(navBackStackEntry) {
+        if (navBackStackEntry?.destination?.route == "store") {
+            bookListViewModel.loadBooks()
+        }
+    }
     if (books.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator()
