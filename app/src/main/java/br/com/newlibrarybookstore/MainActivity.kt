@@ -45,7 +45,6 @@ import br.com.newlibrarybookstore.ui.viewmodel.PurchasesViewModel
 import com.google.gson.Gson
 
 class MainActivity : ComponentActivity() {
-    // Instancia os ViewModels no nível da Activity para que sejam compartilhados
     private val bookListViewModel: BookListViewModel by viewModels()
     private val cartViewModel: CartViewModel by viewModels()
     private val purchasesViewModel: PurchasesViewModel by viewModels()
@@ -67,7 +66,6 @@ class MainActivity : ComponentActivity() {
 fun BookApp(bookListViewModel: BookListViewModel, cartViewModel: CartViewModel, purchasesViewModel: PurchasesViewModel) {
     val navController = rememberNavController()
     val cartItems by cartViewModel.cartItems.collectAsState()
-    //val context: Context = LocalContext.current
     val totalQuantity by cartViewModel.totalQuantity.collectAsState()
 
     Scaffold(
@@ -97,7 +95,6 @@ fun BookApp(bookListViewModel: BookListViewModel, cartViewModel: CartViewModel, 
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
 
-                // Defina os itens da sua barra de navegação
                 val bottomNavItems = listOf(
                     "store" to Icons.Default.Storefront,
                     "purchases" to Icons.Default.History
@@ -109,13 +106,10 @@ fun BookApp(bookListViewModel: BookListViewModel, cartViewModel: CartViewModel, 
                         label = { Text(screen.replaceFirstChar { it.uppercase() }) },
                         selected = currentDestination?.hierarchy?.any { it.route == screen } == true,
 
-                        // SUBSTITUA O SEU ONCLICK POR ESTE BLOCO:
                         onClick = {
                             navController.navigate(screen) {
-                                // Este comando limpa a pilha de navegação até a tela inicial
                                 popUpTo(navController.graph.findStartDestination().id)
 
-                                // Este comando evita criar uma nova tela da loja se você já estiver nela
                                 launchSingleTop = true
                             }
                         }
@@ -135,33 +129,25 @@ fun BookApp(bookListViewModel: BookListViewModel, cartViewModel: CartViewModel, 
                     cartViewModel = cartViewModel,
                     navController = navController,
                     onBookClick = { book ->
-                        // 1. Converte o objeto Book para uma string JSON
                         val bookJson = Gson().toJson(book)
-                        // 2. Navega para a rota de detalhes, passando o JSON como argumento.
-                        // O replace é uma segurança para evitar que caracteres como '/' quebrem a URL.
                         navController.navigate("book_details/${bookJson.replace('/', '|')}")
                     }
                 )
             }
 
-            // ROTA DE DETALHES CORRIGIDA
             composable(
                 route = "book_details/{bookJson}",
                 arguments = listOf(navArgument("bookJson") { type = NavType.StringType })
             ) { backStackEntry ->
-                // 3. Pega a string JSON dos argumentos da rota e desfaz o replace.
                 val bookJson = backStackEntry.arguments?.getString("bookJson")?.replace('|', '/')
                 if (bookJson != null) {
-                    // 4. Converte a string JSON de volta para um objeto Book
                     val book = Gson().fromJson(bookJson, Book::class.java)
-                    // 5. Passa o objeto Book e o NavController para a tela de detalhes
                     BookDetailsScreen(
                         navController = navController,
                         book = book,
                         cartViewModel = cartViewModel
                     )
                 } else {
-                    // Tela de fallback caso algo dê muito errado
                     Text("Erro ao carregar detalhes do livro.")
                 }
             }

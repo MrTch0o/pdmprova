@@ -78,7 +78,6 @@ fun BookStoreScreen(
     }
 }
 
-// Dentro de BookStoreScreen.kt
 
 @Composable
 fun BookStoreItem(book: Book, onAddToCart: ((Book) -> Unit)? = null, onClick: () -> Unit, buttonText: String? = null) {

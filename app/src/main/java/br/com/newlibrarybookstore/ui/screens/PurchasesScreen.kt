@@ -57,8 +57,6 @@ fun PurchasesScreen(purchasesViewModel: PurchasesViewModel = viewModel()) {
     }
 }
 
-// NOVO COMPOSABLE: Apenas para a tela de histórico de compras.
-// Ele não mostra "Unidades" nem o botão "Comprar".
 @Composable
 fun PurchasedBookItem(bookSale: BookSale) {
     Card(modifier = Modifier.fillMaxWidth()) {

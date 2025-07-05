@@ -10,15 +10,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class BookViewModel : ViewModel() {
-    // Instanciando o repositório (em um app real, usaríamos Injeção de Dependência)
     private val repository = BookRepository(RetrofitInstance.api)
 
-    // StateFlow para guardar a lista de livros e expor para a UI
     private val _books = MutableStateFlow<List<Book>>(emptyList())
     val books: StateFlow<List<Book>> = _books
 
     init {
-        // Busca os livros assim que o ViewModel é criado
         fetchBooks()
     }
 

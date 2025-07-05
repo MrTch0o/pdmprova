@@ -67,7 +67,7 @@ fun BookItem(book: Book, modifier: Modifier = Modifier) {
 @Composable
 fun BookListScreen(
     bookViewModel: BookViewModel = viewModel(),
-    onAddBookClicked: () -> Unit // Callback para navegar
+    onAddBookClicked: () -> Unit
 ) {
     val books by bookViewModel.books.collectAsState()
 

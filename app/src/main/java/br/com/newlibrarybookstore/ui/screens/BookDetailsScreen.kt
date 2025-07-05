@@ -1,4 +1,3 @@
-// file: ui/screens/BookDetailsScreen.kt
 package br.com.newlibrarybookstore.ui.screens
 
 import androidx.compose.foundation.layout.*
@@ -23,7 +22,7 @@ import br.com.newlibrarybookstore.ui.viewmodel.CartViewModel
 @Composable
 fun BookDetailsScreen(
     navController: NavController,
-    book: Book, // <-- Recebe o objeto Book completo
+    book: Book,
     cartViewModel: CartViewModel
 ) {
     Scaffold(

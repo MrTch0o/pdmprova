@@ -17,7 +17,6 @@ interface ApiService {
     @GET("book/ls")
     suspend fun getBooks(): List<Book>
 
-    // 🔹 NOVO ENDPOINT
     @POST("sale/new")
     suspend fun createSale(
         @Header("Authorization") token: String,
@@ -37,7 +36,6 @@ interface ApiService {
     ): Response<Unit>
 }
 object RetrofitInstance {
-    // A URL base da nova API
     const val BASE_URL = "https://minibookapi.viniciusfm.pro.br/"
 
     val api: ApiService by lazy {
