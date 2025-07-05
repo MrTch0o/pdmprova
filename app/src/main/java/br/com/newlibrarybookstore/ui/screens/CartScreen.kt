@@ -32,6 +32,12 @@ fun CartScreen(
     navController: NavController,
     cartViewModel: CartViewModel = viewModel()
 ) {
+    val errorMessage = cartViewModel.apiErrorMessage.collectAsState().value
+    val context = navController.context
+    if (errorMessage != null) {
+        Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
+        cartViewModel.clearApiError()
+    }
     val cartItemsMap by cartViewModel.cartItems.collectAsState()
     val totalPrice by cartViewModel.totalPrice.collectAsState()
 
@@ -94,7 +100,7 @@ fun CartScreen(
                                 } else {
                                     Toast.makeText(
                                         navController.context,
-                                        "Erro ao gerar checkout, tente novamente.",
+                                        "Erro ao gerar checkout, tente novamente.$errorMessage",
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }

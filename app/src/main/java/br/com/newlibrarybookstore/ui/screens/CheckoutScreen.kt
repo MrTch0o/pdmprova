@@ -54,12 +54,20 @@ fun CheckoutScreen(
 ) {
 
     val sale = cartViewModel.currentSale.collectAsState().value
+
+    val errorMessage = cartViewModel.apiErrorMessage.collectAsState().value
+    val context = LocalContext.current
+
+    if (errorMessage != null) {
+        Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
+        cartViewModel.clearApiError()
+    }
+
     if (sale == null) {
         Text("Erro ao carregar checkout AQUI.")
         return
     }
     Log.d("SaleDebug", "Checkout: $sale")
-    val context = LocalContext.current
     //val purchasesViewModel: PurchasesViewModel = viewModel()
     val bitmap = base64ToBitmap(sale.pixB64.substringAfter(','))
     val scope = rememberCoroutineScope()

@@ -3,6 +3,7 @@ package br.com.newlibrarybookstore.ui.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import br.com.newlibrarybookstore.data.ApiError
 import br.com.newlibrarybookstore.data.Book
 import br.com.newlibrarybookstore.data.BooksSaleRequest
 import br.com.newlibrarybookstore.data.RetrofitInstance
@@ -14,10 +15,20 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
+import com.google.gson.Gson
+import retrofit2.HttpException
 
 data class CartItem(val book: Book, val quantity: Int)
 
 class CartViewModel : ViewModel() {
+    val TOKEN = "Bearer 1d37663bd531a5dfa016f40ab3d5836b58ff310447526a04b27d83a437afa2e1"
+
+    private val _apiErrorMessage = MutableStateFlow<String?>(null)
+    val apiErrorMessage: StateFlow<String?> = _apiErrorMessage
+
+    fun clearApiError() {
+        _apiErrorMessage.value = null
+    }
 
     private val _cartItems = MutableStateFlow<Map<Int, CartItem>>(emptyMap())
     val cartItems: StateFlow<Map<Int, CartItem>> = _cartItems
@@ -73,19 +84,26 @@ class CartViewModel : ViewModel() {
                 _cartItems.value.mapKeys { it.key.toString() }.mapValues { it.value.quantity }
             )
             Log.d("CheckoutDebug", "Payload enviado: $request")
-            val response = RetrofitInstance.api.createSale(
-                token = TOKEN,
-                request = request
-            )
+            val response = RetrofitInstance.api.createSale(token = "TOKEN", request = request)
             Log.d("CheckoutDebug", "Resposta recebida: $response")
             response
+        } catch (e: HttpException) {
+            val errorBody = e.response()?.errorBody()?.string()
+            errorBody?.let {
+                val apiError = Gson().fromJson(it, ApiError::class.java)
+                _apiErrorMessage.value = apiError.errmsg
+                Log.e("CheckoutDebug", "API Error: ${apiError.errmsg} (code: ${apiError.errcode})")
+            }
+            null
         } catch (e: Exception) {
+            _apiErrorMessage.value = "Erro de conexão ou inesperado: ${e.localizedMessage}"
             Log.e("CheckoutDebug", "Erro ao chamar createSale: ${e.message}", e)
             null
         }
     }
 
-    val TOKEN = "Bearer 1d37663bd531a5dfa016f40ab3d5836b58ff310447526a04b27d83a437afa2e1"
+
+
 
     suspend fun confirmSale(uuid: String): Boolean = withContext(Dispatchers.IO) {
         try {
