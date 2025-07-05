@@ -25,4 +25,8 @@ class BookListViewModel : ViewModel() {
             }
         }
     }
+
+    fun loadBooks() {
+        fetchBooks()
+    }
 }
